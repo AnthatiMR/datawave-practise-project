@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/twilio/current/mule-twilio.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="30afc8f5-247f-4ff1-b1f8-a48b7cbd1e41" >
+		<file:connection workingDir="C:\Users\Masthan\Desktop\mulesoftpoc" />
+	</file:config>
+	<sub-flow name="dataweve-model-projectSub_Flow" doc:id="30b09535-3a1a-44ca-a9e9-94c91c6e9322" >
+		<ee:transform doc:name="Transform Message" doc:id="26c65aa4-822a-476d-9e65-4d157a346b04" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml encoding = "ISO-8859-7"
+ns MR http://masthan.lerning.com/MR
+
+var sp=100
+---
+MR#masthanDetails @("value":sp): {
+MR#masthanName:"rafiya",
+MR#id: 89,
+MR#profission: "police"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="2583c249-2ffc-4880-829a-3a127fc0158a" message=';;;;#["\n"];;;;#[payload]'/>
+	</sub-flow>
+	<sub-flow name="dataweve-model-projectSub1_Flow" doc:id="1e569e58-83f2-469c-9ab0-82e78c1cbfa9" >
+		<ee:transform doc:name="arrey map of xml" doc:id="f24ef541-0579-4ecc-b06b-d3d650c3a84a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml encoding = "ISO-8859-7"
+ns MR http://masthan.lerning.com/MR
+
+var m1= "masthanLTD"
+---
+MR#masthanDetails: {(
+  payload map
+  MR#empdetails @(company:m1):{
+      index:$$,
+      Name:$.name ++"-"++ $.location,
+      ID:$.id,
+      place:$.location
+  }
+      
+)}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="arrey logger" doc:id="00fa64c5-2a4c-4c6f-8ba6-867ffbe073c2" message=';;;;#["\n"];;;;#[payload]' />
+		<ee:transform doc:name="filter&amp;date&amp;time formate" doc:id="a95f1963-eed1-4b23-b31d-5484ec0c8726" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	ID: payload.Id,
+	MC: payload.marketCode,
+	LC: payload.languageCode,
+  Type: typeOf(payload.Id),
+  username: payload.profile.base.username,
+  Phone: (payload.profile.base.phone filter ($.activeInd=="Y" or $.primaryInd=="y")).number default[],
+  date: now() as String {format: "yyyy-MM-dd"},
+  time: now() as String {format: "hh:MM:SS"},
+  days: daysBetween ('2018-05-23' , '2022-06-24')
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="oderBy&amp;multiple" doc:id="83c04649-3305-475b-9bc1-a9aef3df19ae" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload orderBy $.name map(item1) -> {
+	name : item1.name,
+	rollno : item1.rollno * 7
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="dataweve-model-projectSub_Flow1" doc:id="07b48bfd-86a1-4168-940f-7a12b22d011f" >
+		<ee:transform doc:name="Transform Message" doc:id="19e7437d-9572-48ef-8f22-f41cdbb2abf0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+org:payload.masthanDetails mapObject(item)->{
+	company:{
+    name @(loc:"in",year:item.year): item.Name,
+    id:item.ID,
+    location:item.*place map place @(loc:"in"):$
+}}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="bc3d7c5b-29ec-4b77-a8ec-73483c16309b" />
+	</sub-flow>
+	<flow name="dataweve-model-projectFlow" doc:id="eae1f5a5-7499-425c-bb1e-eaa936f37f0b" >
+		<ee:transform doc:name="groupby" doc:id="71945abe-aa51-40dc-80db-a6d1365e792a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var d = [{
+	"a": 100,
+	"bname": "raju",
+	"clocaton": "venkatagiri"
+},
+{
+	"a": 600,
+	"bname": "mani",
+	"clocaton": "tirupati"
+},
+{
+	"a": 300,
+	"bname": "ridhika",
+	"clocaton": "guduru"
+}
+]
+---
+ d map((item, index) -> {
+ 	id:item.a,
+ 	Name:item.bname,
+ 	locaton:item.clocaton
+ 	}) groupBy((item, index) -> item.id)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="zip- value" doc:id="ccafdb15-9f89-4ed6-b72f-e386b0659a85" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var d = [{
+	"a": 100,
+	"bname": "raju",
+	"clocaton": "venkatagiri"
+},
+{
+	"a": 600,
+	"bname": "mani",
+	"clocaton": "tirupati"
+},
+{
+	"a": 300,
+	"bname": "ridhika",
+	"clocaton": "guduru"
+}
+]
+var b = [{
+	"a": 400,
+	"bname": "aisha",
+	"clocaton": "rebala"
+},
+{
+	"a": 700,
+	"bname": "salma",
+	"clocaton": "guduru"
+},
+{
+	"a": 200,
+	"bname": "niharika",
+	"clocaton": "kavali"
+}
+]
+---
+d zip b ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="34964c32-15a9-46a5-ae03-3e0be196dd39" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+//pattran macthing
+var s = {
+	"name": "masthana",
+	"lname":"Anthati",
+	"id": 786,
+	"velliage": "thimmayagunta"
+}
+---
+{
+	example: s.name match{
+		case "masthan" ->s.lname ++" "++ s.name
+		else -> "whats wrong with you"
+	},
+	example2:if(s.id > 700)s.velliage
+		     else 
+		      "you doing wrong way",
+    example3: s.id match{
+    	case "Number" ->s.lname
+    	else -> "it's not number"
+    	//here i have dought id is number 
+    	//but it says not number how
+    }
+    	      
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="dataweve-model-projectFlow1" doc:id="94346915-724b-4887-8456-d4320eda8b94" >
+		<file:listener doc:name="sending-jsonfile" doc:id="eb74308d-edaa-4f37-9dc5-dbc988597f0a" config-ref="File_Config" directory="C:\Users\Masthan\Desktop\mulesoftpoc\inbond" autoDelete="true" moveToDirectory="C:\Users\Masthan\Desktop\mulesoftpoc\masthan" outputMimeType="application/json">
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="SECONDS" />
+			</scheduling-strategy>
+		</file:listener>
+		<logger level="INFO" doc:name="log the payload" doc:id="c363f9e8-22f8-46bd-85fe-22569e8bb5a5" message='#["\n"];;;;#[payload]'/>
+		<ee:transform doc:name="changing to xml" doc:id="8f2fe4ad-4354-4ae0-b782-8f53d8b3eaf2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<flow-ref doc:name="Code.javaSub_Flow" doc:id="1e38c0f9-cb69-4892-9fba-2f4cc075ae55" name="Code.javaSub_Flow"/>
+	</flow>
+</mule>

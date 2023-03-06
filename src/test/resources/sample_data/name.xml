@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='ISO-8859-7'?>
+<MR:masthanDetails xmlns:MR="http://masthan.lerning.com/MR">
+  <MR:empdetails company="masthanLTD">
+    <index>0</index>
+    <Name>ranga-kuwait</Name>
+    <ID>687</ID>
+    <year>2017</year>
+    <place>kuwait</place>
+  </MR:empdetails>
+  <MR:empdetails company="masthanLTD">
+    <index>1</index>
+    <Name>masthan-vampalli</Name>
+    <ID>786</ID>
+    <year>2023</year>
+    <place>vampalli</place>
+  </MR:empdetails>
+  <MR:empdetails company="masthanLTD">
+    <index>2</index>
+    <Name>karthik-rebala</Name>
+    <ID>110</ID>
+    <year>2022</year>
+    <place>rebala</place>
+  </MR:empdetails>
+  <MR:empdetails company="masthanLTD">
+    <index>3</index>
+    <Name>narasimhulu-vallivedu</Name>
+    <ID>896</ID>
+    <year>1996</year>
+    <place>vallivedu</place>
+  </MR:empdetails>
+</MR:masthanDetails>
